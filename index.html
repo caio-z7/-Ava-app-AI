@@ -1,0 +1,227 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Ava — Apoio emocional para mulheres com câncer ginecológico</title>
+  <link rel="stylesheet" href="css/styles.css" />
+  <meta name="description" content="Ava — IA de apoio emocional e informativo para mulheres com câncer de útero e outros ginecológicos. Chat 24h com limites clínicos claros." />
+</head>
+<body>
+  <div id="app">
+    <!-- Onboarding Overlay -->
+    <div id="onboarding" class="modal hidden">
+      <div class="modal-card">
+        <h2>Bem-vinda à Ava</h2>
+        <p>Ava é uma IA de apoio emocional e informativo para mulheres com câncer ginecológico. Estou aqui como amiga/“psicóloga digital” 24h, com limites clínicos claros.</p>
+        <form id="profileForm">
+          <label>Nome (opcional)
+            <input type="text" id="profileName" placeholder="Seu nome" />
+          </label>
+          <label>Idade
+            <input type="number" id="profileAge" min="0" max="120" />
+          </label>
+          <label>Estado do tratamento
+            <select id="profileStage">
+              <option value="diagnosis">Diagnóstico</option>
+              <option value="treatment">Em tratamento</option>
+              <option value="post-treatment">Pós‑tratamento</option>
+              <option value="follow-up">Seguimento</option>
+            </select>
+          </label>
+          <label>Tem filhos?
+            <select id="profileKids">
+              <option value="unknown">Prefiro não dizer</option>
+              <option value="no">Não</option>
+              <option value="yes">Sim</option>
+            </select>
+          </label>
+          <div class="actions">
+            <button type="button" id="skipOnboarding" class="btn secondary">Pular</button>
+            <button type="submit" class="btn primary">Salvar e continuar</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- Header -->
+    <header class="app-header">
+      <h1 id="screenTitle">Painel</h1>
+      <div class="header-actions">
+        <button id="openProfile" class="icon-btn" title="Perfil">⚙️</button>
+      </div>
+    </header>
+
+    <!-- Main content -->
+    <main id="mainContent" class="view">
+      <!-- Home / Dashboard -->
+      <section id="home" class="screen">
+        <div class="card">
+          <h3>Hoje</h3>
+          <div id="medList" class="med-list"></div>
+          <div class="row">
+            <button id="quickAddMed" class="btn secondary">Adicionar med</button>
+            <button id="openAvaQuick" class="btn primary">Fale com a Ava</button>
+          </div>
+        </div>
+
+        <div class="card">
+          <h3>Próximas consultas/exames</h3>
+          <ul id="appointmentsList" class="list"></ul>
+          <button id="addAppointment" class="btn secondary">Adicionar agendamento</button>
+        </div>
+
+        <div class="card">
+          <h3>Mood rápido</h3>
+          <div id="quickMood" class="mood-row">
+            <button data-mood="1" class="mood">😔</button>
+            <button data-mood="2" class="mood">😕</button>
+            <button data-mood="3" class="mood">😐</button>
+            <button data-mood="4" class="mood">🙂</button>
+            <button data-mood="5" class="mood">😊</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- Treatment -->
+      <section id="treatment" class="screen hidden">
+        <div class="card">
+          <h3>Cronograma de Tratamento</h3>
+          <div id="treatmentMedList" class="med-list"></div>
+          <button id="addMedButton" class="btn primary">Adicionar medicamento</button>
+        </div>
+
+        <div class="card">
+          <h3>Calendário de Agendamentos</h3>
+          <ul id="appointmentsCalendar" class="list"></ul>
+        </div>
+      </section>
+
+      <!-- Symptoms -->
+      <section id="symptoms" class="screen hidden">
+        <div class="card">
+          <h3>Registrar Sintoma</h3>
+          <div class="symptom-form">
+            <input id="symptomName" placeholder="Sintoma (ex: dor, náusea)" />
+            <label>Intensidade: <input id="symptomScale" type="range" min="1" max="10" value="5" /></label>
+            <textarea id="symptomNotes" placeholder="Detalhes (opcional)"></textarea>
+            <div class="actions">
+              <button id="saveSymptom" class="btn primary">Salvar sintoma</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <h3>Histórico de Sintomas</h3>
+          <ul id="symptomList" class="list"></ul>
+        </div>
+      </section>
+
+      <!-- Emotions / Ava -->
+      <section id="emotions" class="screen hidden">
+        <div class="card">
+          <h3>Diário de Humor</h3>
+          <div class="mood-record">
+            <input id="moodNote" placeholder="Como você está hoje?" />
+            <select id="moodScale">
+              <option value="1">1 — Muito mal</option>
+              <option value="2">2</option>
+              <option value="3">3 — Mais ou menos</option>
+              <option value="4">4</option>
+              <option value="5">5 — Bem</option>
+            </select>
+            <div class="actions">
+              <button id="saveMood" class="btn primary">Salvar</button>
+            </div>
+          </div>
+          <ul id="moodList" class="list"></ul>
+        </div>
+
+        <div class="card">
+          <h3>Ava — Conversa</h3>
+          <div id="avaChat" class="chat">
+            <div id="chatMessages" class="messages"></div>
+            <div class="chat-controls">
+              <input id="chatInput" placeholder="Escreva para a Ava..." />
+              <button id="sendChat" class="btn primary">Enviar</button>
+              <button id="listenLast" class="btn secondary">Ouvir última</button>
+            </div>
+            <div class="voice-controls">
+              <button id="speakWithAva" class="btn primary">🎤 Falar com a Ava</button>
+              <span id="sttStatus" class="hint"></span>
+            </div>
+            <p class="disclaimer">Sou uma IA de apoio e não substituo sua equipe médica. Em situações graves, procure emergência ou profissional de saúde. (Veja Ajuda → Números)</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- More -->
+      <section id="more" class="screen hidden">
+        <div class="card">
+          <h3>Configurações</h3>
+          <label><input id="notifToggle" type="checkbox" /> Notificações ativadas</label>
+          <label><input id="voiceToggle" type="checkbox" checked/> Ativar voz (TTS)</label>
+        </div>
+
+        <div class="card">
+          <h3>Ajuda e Emergência</h3>
+          <p>Se estiver em risco imediato, procure a emergência médica ou ligue para os números de apoio listados.</p>
+          <ul>
+            <li>SAMU (Brasil): 192</li>
+            <li>CVV (apoio emocional): 188</li>
+            <li>Contato do hospital/oncologista (adicione nos agendamentos)</li>
+          </ul>
+        </div>
+
+        <div class="card danger">
+          <h3>Limites e Ética</h3>
+          <p>Ava não fornece condutas médicas. Não proponha troca de medicação ou decisões críticas sem conversar com sua equipe de saúde. Não dou garantias de cura.</p>
+        </div>
+      </section>
+    </main>
+
+    <!-- Bottom Tab Bar -->
+    <nav class="bottom-nav">
+      <button class="tab-btn active" data-target="home">Início</button>
+      <button class="tab-btn" data-target="treatment">Tratamento</button>
+      <button class="tab-btn" data-target="symptoms">Sintomas</button>
+      <button class="tab-btn" data-target="emotions">Emoções</button>
+      <button class="tab-btn" data-target="more">Mais</button>
+    </nav>
+
+    <!-- Modals (hidden by default) -->
+    <div id="medModal" class="modal hidden">
+      <div class="modal-card">
+        <h3>Medicamento</h3>
+        <label>Nome <input id="medName" /></label>
+        <label>Dose <input id="medDose" /></label>
+        <label>Horário <input id="medTime" type="time" /></label>
+        <div class="actions">
+          <button id="closeMedModal" class="btn secondary">Cancelar</button>
+          <button id="saveMed" class="btn primary">Salvar</button>
+        </div>
+      </div>
+    </div>
+
+    <div id="apptModal" class="modal hidden">
+      <div class="modal-card">
+        <h3>Agendamento</h3>
+        <label>Descrição <input id="apptDesc" /></label>
+        <label>Data <input id="apptDate" type="date" /></label>
+        <label>Hora <input id="apptTime" type="time" /></label>
+        <div class="actions">
+          <button id="closeApptModal" class="btn secondary">Cancelar</button>
+          <button id="saveAppt" class="btn primary">Salvar</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Footer small -->
+    <footer class="footer">
+      <small>© Ava — Suporte emocional para mulheres com câncer ginecológico. IA de apoio, não substitui equipe médica.</small>
+    </footer>
+  </div>
+
+  <script src="js/app.js"></script>
+</body>
+</html>
