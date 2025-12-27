@@ -1,0 +1,45 @@
+name: Deploy to GitHub Pages (gh-pages via JamesIves)
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Ensure rsync is available
+        run: |
+          if ! command -v rsync >/dev/null 2>&1; then
+            sudo apt-get update -y
+            sudo apt-get install -y rsync
+          fi
+
+      - name: Prepare public directory
+        run: |
+          rm -rf public || true
+          mkdir -p public
+          rsync -av --exclude='.git' --exclude='.github' --exclude='node_modules' --exclude='.gitignore' --exclude='README.md' ./ public || true
+          echo "=== Conteúdo de public ==="
+          ls -la public || true
+
+      - name: Fail if public is empty
+        run: |
+          if [ -z "$(ls -A public 2>/dev/null)" ]; then
+            echo "ERRO: pasta 'public' está vazia — nada para publicar."
+            ls -la .
+            exit 1
+          fi
+
+      - name: Deploy to gh-pages branch
+        uses: JamesIves/github-pages-deploy-action@v4
+        with:
+          branch: gh-pages            # branch de destino
+          folder: public              # pasta a publicar
+          clean: true                 # remove arquivos antigos antes de publicar
+          commit-message: "chore: deploy site via action"
+          token: ${{ secrets.GITHUB_TOKEN }}
